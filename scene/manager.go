@@ -10,6 +10,7 @@ func NewManager(screenWidth int, screenHeight int, titleScene Scene, gameScene S
 		screenHeight:       screenHeight,
 		current:            nil,
 		next:               nil,
+		nextInitiated:      false,
 		transitionCount:    0,
 		maxTransitionCount: 20,
 		transitionFrom:     nil,
@@ -26,6 +27,7 @@ type Manager struct {
 	screenHeight       int
 	current            Scene
 	next               Scene
+	nextInitiated      bool
 	transitionCount    int
 	maxTransitionCount int
 	transitionFrom     *ebiten.Image
@@ -56,6 +58,11 @@ func (m *Manager) Update() error {
 		return m.current.Update()
 	}
 
+	if !m.nextInitiated {
+		m.next.Init()
+		m.nextInitiated = true
+	}
+
 	m.transitionCount--
 	if m.transitionCount > 0 {
 		return nil
@@ -63,7 +70,7 @@ func (m *Manager) Update() error {
 
 	m.current = m.next
 	m.next = nil
-	m.current.Init()
+	m.nextInitiated = false
 	return nil
 }
 
