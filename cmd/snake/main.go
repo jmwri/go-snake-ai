@@ -5,6 +5,7 @@ import (
 	"go-snake-ai/game"
 	"go-snake-ai/input"
 	"go-snake-ai/scene"
+	"go-snake-ai/score"
 	"log"
 	"os"
 	"runtime/pprof"
@@ -30,8 +31,10 @@ func main() {
 
 	in := input.NewUserInput()
 
+	writer := score.NewCSV("scores")
+
 	titleScene := scene.NewTitleScene()
-	gameScene := scene.NewGameScene(*gameSize, *gameSize, in)
+	gameScene := scene.NewGameScene(*gameSize, *gameSize, in, writer)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
 	opts := game.Options{
 		NumTilesX: *gameSize,

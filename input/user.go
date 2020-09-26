@@ -18,6 +18,10 @@ type UserInput struct {
 	listening   bool
 }
 
+func (i *UserInput) Name() string {
+	return "user"
+}
+
 func (i *UserInput) Init() {
 	i.lastPressed = direction.None
 	if !i.listening {
@@ -28,13 +32,13 @@ func (i *UserInput) Init() {
 
 func (i *UserInput) listen() {
 	for {
-		if ebiten.IsKeyPressed(ebiten.KeyW) {
+		if ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
 			i.lastPressed = direction.Up
-		} else if ebiten.IsKeyPressed(ebiten.KeyD) {
+		} else if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
 			i.lastPressed = direction.Right
-		} else if ebiten.IsKeyPressed(ebiten.KeyS) {
+		} else if ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
 			i.lastPressed = direction.Down
-		} else if ebiten.IsKeyPressed(ebiten.KeyA) {
+		} else if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
 			i.lastPressed = direction.Left
 		}
 	}

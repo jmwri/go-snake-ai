@@ -63,6 +63,10 @@ func (s *State) Score() int {
 	return s.score
 }
 
+func (s *State) MaxScore() int {
+	return s.maxScore
+}
+
 func (s *State) Won() bool {
 	return s.score == s.maxScore
 }

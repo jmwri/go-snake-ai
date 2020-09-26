@@ -16,3 +16,6 @@
 
 # IDE
 .idea
+
+# Score output
+/scores

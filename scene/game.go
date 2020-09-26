@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"go-snake-ai/input"
+	"go-snake-ai/score"
 	"go-snake-ai/state"
 	"go-snake-ai/ui"
 	"image/color"
@@ -13,26 +14,29 @@ import (
 	"time"
 )
 
-func NewGameScene(tileNumX int, tileNumY int, in input.Input) *GameScene {
+func NewGameScene(tileNumX int, tileNumY int, in input.Input, writer score.Writer) *GameScene {
 	return &GameScene{
 		tileNumX: tileNumX,
 		tileNumY: tileNumY,
 		in:       in,
+		writer:   writer,
 	}
 }
 
 type GameScene struct {
-	manager     *Manager
-	s           *state.State
-	ended       bool
-	imageScore  *ebiten.Image
-	imageEnded  *ebiten.Image
-	tileNumX    int
-	tileNumY    int
-	tileWidth   float64
-	tileHeight  float64
-	in          input.Input
-	currentTick int
+	manager      *Manager
+	s            *state.State
+	ended        bool
+	imageScore   *ebiten.Image
+	imageEnded   *ebiten.Image
+	tileNumX     int
+	tileNumY     int
+	tileWidth    float64
+	tileHeight   float64
+	in           input.Input
+	currentTick  int
+	writer       score.Writer
+	writtenScore bool
 }
 
 func (s *GameScene) SetManager(manager *Manager) {
@@ -49,11 +53,17 @@ func (s *GameScene) Init() {
 	s.in.Init()
 	s.ended = false
 	s.currentTick = 0
+	s.writtenScore = false
 }
 
 func (s *GameScene) Update() error {
 	s.currentTick++
 	if s.ended {
+		if !s.writtenScore {
+			s.writtenScore = true
+			s.writer.Write(s.s.Score(), s.s.MaxScore(), s.in)
+		}
+
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 			s.manager.GoToTitle()
 		}
