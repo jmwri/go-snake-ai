@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"go-snake-ai/game"
+	"go-snake-ai/path"
 	"go-snake-ai/scene"
 	"go-snake-ai/score"
 	"go-snake-ai/solver"
@@ -33,6 +34,9 @@ func main() {
 	var gameSolver solver.Solver
 	if *slvr == "user" {
 		gameSolver = solver.NewUserSolver()
+	} else if *slvr == "shortest" {
+		pathGen := path.NewBreadthFirstSearch()
+		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, true)
 	} else {
 		panic("no solver found")
 	}
