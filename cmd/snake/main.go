@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"go-snake-ai/game"
-	"go-snake-ai/input"
 	"go-snake-ai/scene"
 	"go-snake-ai/score"
+	"go-snake-ai/solver"
 	"log"
 	"os"
 	"runtime/pprof"
@@ -29,12 +29,12 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	in := input.NewUserInput()
+	slvr := solver.NewUserSolver()
 
 	writer := score.NewCSV("scores")
 
 	titleScene := scene.NewTitleScene()
-	gameScene := scene.NewGameScene(*gameSize, *gameSize, in, writer)
+	gameScene := scene.NewGameScene(*gameSize, *gameSize, slvr, writer)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
 	opts := game.Options{
 		NumTilesX: *gameSize,

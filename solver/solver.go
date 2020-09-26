@@ -1,11 +1,11 @@
-package input
+package solver
 
 import (
 	"go-snake-ai/direction"
 	"go-snake-ai/state"
 )
 
-type Input interface {
+type Solver interface {
 	Name() string
 	NextMove(s *state.State) direction.Direction
 	Ticks() int

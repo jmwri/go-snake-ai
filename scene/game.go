@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
-	"go-snake-ai/input"
 	"go-snake-ai/score"
+	"go-snake-ai/solver"
 	"go-snake-ai/state"
 	"go-snake-ai/ui"
 	"image/color"
@@ -14,11 +14,11 @@ import (
 	"time"
 )
 
-func NewGameScene(tileNumX int, tileNumY int, in input.Input, writer score.Writer) *GameScene {
+func NewGameScene(tileNumX int, tileNumY int, slvr solver.Solver, writer score.Writer) *GameScene {
 	return &GameScene{
 		tileNumX: tileNumX,
 		tileNumY: tileNumY,
-		in:       in,
+		slvr:     slvr,
 		writer:   writer,
 	}
 }
@@ -33,7 +33,7 @@ type GameScene struct {
 	tileNumY     int
 	tileWidth    float64
 	tileHeight   float64
-	in           input.Input
+	slvr         solver.Solver
 	currentTick  int
 	writer       score.Writer
 	writtenScore bool
@@ -50,7 +50,7 @@ func (s *GameScene) Init() {
 	s.tileWidth = float64(s.manager.ScreenWidth()) / float64(s.tileNumX)
 	s.tileHeight = float64(s.manager.ScreenHeight()) / float64(s.tileNumY)
 	s.s = state.NewState(s.tileNumX, s.tileNumY)
-	s.in.Init()
+	s.slvr.Init()
 	s.ended = false
 	s.currentTick = 0
 	s.writtenScore = false
@@ -61,7 +61,7 @@ func (s *GameScene) Update() error {
 	if s.ended {
 		if !s.writtenScore {
 			s.writtenScore = true
-			s.writer.Write(s.s.Score(), s.s.MaxScore(), s.in)
+			s.writer.Write(s.s.Score(), s.s.MaxScore(), s.slvr)
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
@@ -70,10 +70,10 @@ func (s *GameScene) Update() error {
 		return nil
 	}
 
-	if s.currentTick < s.in.Ticks() {
+	if s.currentTick < s.slvr.Ticks() {
 		return nil
 	}
-	nextDirection := s.in.NextMove(s.s)
+	nextDirection := s.slvr.NextMove(s.s)
 	alive, err := s.s.Move(nextDirection)
 	if err != nil {
 		return err
