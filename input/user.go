@@ -2,37 +2,46 @@ package input
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
 	"go-snake-ai/direction"
 	"go-snake-ai/state"
 )
 
 func NewUserInput() *UserInput {
-	input := &UserInput{
-		lastPressed: direction.DirectionNone,
+	return &UserInput{
+		lastPressed: direction.None,
+		listening:   false,
 	}
-	go input.listen()
-	return input
 }
 
 type UserInput struct {
 	lastPressed direction.Direction
+	listening   bool
+}
+
+func (i *UserInput) Init() {
+	i.lastPressed = direction.None
+	if !i.listening {
+		i.listening = true
+		go i.listen()
+	}
 }
 
 func (i *UserInput) listen() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		i.lastPressed = direction.DirectionUp
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		i.lastPressed = direction.DirectionRight
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		i.lastPressed = direction.DirectionDown
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
-		i.lastPressed = direction.DirectionLeft
+	for {
+		if ebiten.IsKeyPressed(ebiten.KeyW) {
+			i.lastPressed = direction.Up
+		} else if ebiten.IsKeyPressed(ebiten.KeyD) {
+			i.lastPressed = direction.Right
+		} else if ebiten.IsKeyPressed(ebiten.KeyS) {
+			i.lastPressed = direction.Down
+		} else if ebiten.IsKeyPressed(ebiten.KeyA) {
+			i.lastPressed = direction.Left
+		}
 	}
 }
 
 func (i *UserInput) NextMove(s *state.State) direction.Direction {
 	last := i.lastPressed
-	i.lastPressed = direction.DirectionNone
+	i.lastPressed = direction.None
 	return last
 }

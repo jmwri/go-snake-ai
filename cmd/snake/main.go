@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"go-snake-ai/game"
+	"go-snake-ai/input"
 	"go-snake-ai/scene"
 	"log"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
+var gameSize = flag.Int("size", 10, "size of the play area")
 
 func main() {
 	flag.Parse()
@@ -26,12 +28,14 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	in := input.NewUserInput()
+
 	titleScene := scene.NewTitleScene()
-	gameScene := scene.NewGameScene(10, 10)
+	gameScene := scene.NewGameScene(*gameSize, *gameSize, in)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
 	opts := game.Options{
-		NumTilesX: 10,
-		NumTilesY: 10,
+		NumTilesX: *gameSize,
+		NumTilesY: *gameSize,
 		Manager:   manager,
 	}
 	g := game.NewGame(opts)

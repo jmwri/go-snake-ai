@@ -7,4 +7,5 @@ import (
 
 type Input interface {
 	NextMove(s *state.State) direction.Direction
+	Init()
 }

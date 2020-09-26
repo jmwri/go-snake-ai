@@ -1,6 +1,7 @@
 package state
 
 import (
+	"fmt"
 	"go-snake-ai/direction"
 	"go-snake-ai/tile"
 	"math/rand"
@@ -23,9 +24,11 @@ func NewState(tileNumX int, tileNumY int) *State {
 		tileNumY:     tileNumY,
 		tiles:        tiles,
 		changedTiles: changed,
+		score:        0,
+		maxScore:     tileNumX * tileNumY,
 	}
-	s.SpawnSnake()
-	s.SpawnFruit()
+	s.spawnSnake()
+	s.spawnFruit()
 	return s
 }
 
@@ -36,11 +39,14 @@ type State struct {
 	tiles        [][]tile.Type
 	changedTiles []*tile.Vector
 	snakeDir     direction.Direction
+	snake        []*tile.Vector
+	score        int
+	maxScore     int
 }
 
 // SetTile sets the tile at the given coordinates
 func (s *State) SetTile(x int, y int, tileType tile.Type) {
-	s.tiles[x][y] = tileType
+	s.tiles[y][x] = tileType
 }
 
 // Tile returns the tile from the given vector
@@ -51,6 +57,14 @@ func (s *State) Tile(x int, y int) tile.Type {
 // Tiles returns the tiles from the state
 func (s *State) Tiles() [][]tile.Type {
 	return s.tiles
+}
+
+func (s *State) Score() int {
+	return s.score
+}
+
+func (s *State) Won() bool {
+	return s.score == s.maxScore
 }
 
 func (s *State) randomFreeTile() *tile.Vector {
@@ -69,9 +83,10 @@ func (s *State) randomFreeTile() *tile.Vector {
 	return freeVectors[randomI]
 }
 
-func (s *State) SpawnSnake() {
+func (s *State) spawnSnake() {
 	snakePos := s.randomFreeTile()
-	s.SetTile(snakePos.X, snakePos.Y, tile.TypeBody)
+	s.snake = []*tile.Vector{snakePos}
+	s.SetTile(snakePos.X, snakePos.Y, tile.TypeHead)
 
 	freeDirections := make([]direction.Direction, 0)
 	if snakePos.X > 0 && s.Tile(snakePos.X-1, snakePos.Y) == tile.TypeNone {
@@ -91,7 +106,83 @@ func (s *State) SpawnSnake() {
 	s.snakeDir = freeDirections[randomI]
 }
 
-func (s *State) SpawnFruit() {
+func (s *State) spawnFruit() bool {
 	snakePos := s.randomFreeTile()
+	if snakePos == nil {
+		return false
+	}
 	s.SetTile(snakePos.X, snakePos.Y, tile.TypeFruit)
+	return true
+}
+
+func (s *State) Move(dir direction.Direction) (bool, error) {
+	curVec := s.snakeHead()
+	var nextVec *tile.Vector
+
+	if dir == direction.None || direction.IsOpposite(dir, s.snakeDir) {
+		dir = s.snakeDir
+	}
+
+	s.snakeDir = dir
+
+	if dir == direction.Up {
+		nextVec = tile.NewVector(curVec.X, curVec.Y-1)
+	} else if dir == direction.Right {
+		nextVec = tile.NewVector(curVec.X+1, curVec.Y)
+	} else if dir == direction.Down {
+		nextVec = tile.NewVector(curVec.X, curVec.Y+1)
+	} else if dir == direction.Left {
+		nextVec = tile.NewVector(curVec.X-1, curVec.Y)
+	} else {
+		return false, fmt.Errorf("unable to move")
+	}
+
+	if nextVec.X < 0 || nextVec.X >= s.tileNumX || nextVec.Y < 0 || nextVec.Y >= s.tileNumY {
+		return false, nil
+	}
+
+	targetTile := s.Tile(nextVec.X, nextVec.Y)
+	if targetTile == tile.TypeFruit {
+		s.extendSnake(nextVec, false)
+		// Increment score
+		s.score++
+		// Respawn fruit
+		if !s.spawnFruit() {
+			return false, nil
+		}
+
+		return true, nil
+	} else if targetTile == tile.TypeNone {
+		s.extendSnake(nextVec, true)
+		return true, nil
+	}
+	return false, nil
+}
+
+func (s *State) extendSnake(next *tile.Vector, removeTail bool) {
+	// Keep track of old head as we need to change it to TypeBody
+	oldHead := s.snakeHead()
+	s.SetTile(oldHead.X, oldHead.Y, tile.TypeBody)
+	// Eating a fruit! Set the fruit tile to snake body
+	s.SetTile(next.X, next.Y, tile.TypeHead)
+	// Set new head of snake to the next vector
+	s.snake = append([]*tile.Vector{next}, s.snake...)
+
+	if removeTail {
+		// Remove tail of snake
+		tailVec := s.snakeTail()
+		// Set tile of tail to None
+		s.SetTile(tailVec.X, tailVec.Y, tile.TypeNone)
+		// Remove last vector from snake slice
+		s.snake = s.snake[:len(s.snake)-1]
+	}
+}
+
+func (s *State) snakeHead() *tile.Vector {
+	return s.snake[0]
+}
+
+func (s *State) snakeTail() *tile.Vector {
+	snakeLen := len(s.snake)
+	return s.snake[snakeLen-1]
 }

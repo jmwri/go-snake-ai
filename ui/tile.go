@@ -12,6 +12,12 @@ var TileColours = map[tile.Type]color.Color{
 		B: 20,
 		A: 255,
 	},
+	tile.TypeHead: color.RGBA{
+		R: 0,
+		G: 200,
+		B: 0,
+		A: 255,
+	},
 	tile.TypeBody: color.RGBA{
 		R: 0,
 		G: 255,
