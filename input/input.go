@@ -8,5 +8,6 @@ import (
 type Input interface {
 	Name() string
 	NextMove(s *state.State) direction.Direction
+	Ticks() int
 	Init()
 }

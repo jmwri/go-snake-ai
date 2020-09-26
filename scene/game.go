@@ -70,8 +70,7 @@ func (s *GameScene) Update() error {
 		return nil
 	}
 
-	snakeSpeed := 20
-	if s.currentTick != snakeSpeed {
+	if s.currentTick < s.in.Ticks() {
 		return nil
 	}
 	nextDirection := s.in.NextMove(s.s)
