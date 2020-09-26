@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+var slvr = flag.String("solver", "user", "which solver to use")
 var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
 var gameSize = flag.Int("size", 10, "size of the play area")
 
@@ -29,12 +30,17 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	slvr := solver.NewUserSolver()
+	var gameSolver solver.Solver
+	if *slvr == "user" {
+		gameSolver = solver.NewUserSolver()
+	} else {
+		panic("no solver found")
+	}
 
 	writer := score.NewCSV("scores")
 
 	titleScene := scene.NewTitleScene()
-	gameScene := scene.NewGameScene(*gameSize, *gameSize, slvr, writer)
+	gameScene := scene.NewGameScene(*gameSize, *gameSize, gameSolver, writer)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
 	opts := game.Options{
 		NumTilesX: *gameSize,
