@@ -25,7 +25,7 @@ func NewState(tileNumX int, tileNumY int) *State {
 		tiles:        tiles,
 		changedTiles: changed,
 		score:        0,
-		maxScore:     tileNumX * tileNumY,
+		maxScore:     (tileNumX * tileNumY) - 1,
 	}
 	s.spawnSnake()
 	s.spawnFruit()
@@ -40,8 +40,16 @@ type State struct {
 	changedTiles []*tile.Vector
 	snakeDir     direction.Direction
 	snake        []*tile.Vector
+	fruit        *tile.Vector
 	score        int
 	maxScore     int
+}
+
+func (s *State) ValidPosition(x int, y int) bool {
+	if x < 0 || x > s.tileNumX-1 || y < 0 || y > s.tileNumY-1 {
+		return false
+	}
+	return true
 }
 
 // SetTile sets the tile at the given coordinates
@@ -111,16 +119,17 @@ func (s *State) spawnSnake() {
 }
 
 func (s *State) spawnFruit() bool {
-	snakePos := s.randomFreeTile()
-	if snakePos == nil {
+	fruitPos := s.randomFreeTile()
+	if fruitPos == nil {
 		return false
 	}
-	s.SetTile(snakePos.X, snakePos.Y, tile.TypeFruit)
+	s.SetTile(fruitPos.X, fruitPos.Y, tile.TypeFruit)
+	s.fruit = fruitPos
 	return true
 }
 
 func (s *State) Move(dir direction.Direction) (bool, error) {
-	curVec := s.snakeHead()
+	curVec := s.SnakeHead()
 	var nextVec *tile.Vector
 
 	if dir == direction.None || direction.IsOpposite(dir, s.snakeDir) {
@@ -165,7 +174,7 @@ func (s *State) Move(dir direction.Direction) (bool, error) {
 
 func (s *State) extendSnake(next *tile.Vector, removeTail bool) {
 	// Keep track of old head as we need to change it to TypeBody
-	oldHead := s.snakeHead()
+	oldHead := s.SnakeHead()
 	s.SetTile(oldHead.X, oldHead.Y, tile.TypeBody)
 	// Eating a fruit! Set the fruit tile to snake body
 	s.SetTile(next.X, next.Y, tile.TypeHead)
@@ -174,7 +183,7 @@ func (s *State) extendSnake(next *tile.Vector, removeTail bool) {
 
 	if removeTail {
 		// Remove tail of snake
-		tailVec := s.snakeTail()
+		tailVec := s.SnakeTail()
 		// Set tile of tail to None
 		s.SetTile(tailVec.X, tailVec.Y, tile.TypeNone)
 		// Remove last vector from snake slice
@@ -182,11 +191,15 @@ func (s *State) extendSnake(next *tile.Vector, removeTail bool) {
 	}
 }
 
-func (s *State) snakeHead() *tile.Vector {
+func (s *State) Fruit() *tile.Vector {
+	return s.fruit
+}
+
+func (s *State) SnakeHead() *tile.Vector {
 	return s.snake[0]
 }
 
-func (s *State) snakeTail() *tile.Vector {
+func (s *State) SnakeTail() *tile.Vector {
 	snakeLen := len(s.snake)
 	return s.snake[snakeLen-1]
 }
