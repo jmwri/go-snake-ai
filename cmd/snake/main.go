@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"go-snake-ai/game"
 	"go-snake-ai/path"
 	"go-snake-ai/scene"
@@ -63,7 +64,10 @@ func main() {
 	g := game.NewGame(opts)
 
 	ebiten.SetWindowSize(manager.ScreenWidth(), manager.ScreenHeight())
-	ebiten.SetWindowTitle("Snake AI")
+	windowTitle := fmt.Sprintf("Snake AI - %s", gameSolver.Name())
+	ebiten.SetWindowTitle(windowTitle)
+	ebiten.SetRunnableInBackground(true)
+	ebiten.SetRunnableOnUnfocused(true)
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
