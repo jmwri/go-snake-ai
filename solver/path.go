@@ -42,7 +42,7 @@ func (s *PathFollowingSolver) Init() {
 }
 
 func (s *PathFollowingSolver) Ticks() int {
-	return 5
+	return 0
 }
 
 func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
