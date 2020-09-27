@@ -195,6 +195,10 @@ func (s *State) Fruit() *tile.Vector {
 	return s.fruit
 }
 
+func (s *State) SnakeDir() direction.Direction {
+	return s.snakeDir
+}
+
 func (s *State) SnakeHead() *tile.Vector {
 	return s.snake[0]
 }

@@ -44,11 +44,11 @@ func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
 	}
 
 	if regenPath {
-		shortestPath, foundPath := s.pathGen.Generate(st, st.SnakeHead(), st.Fruit())
+		targetPath, foundPath := s.pathGen.Generate(st, st.SnakeHead(), st.Fruit())
 		if !foundPath {
 			return direction.None
 		}
-		s.moves = path.PathToMoves(shortestPath)
+		s.moves = path.PathToMoves(targetPath)
 		s.currentMove = 0
 		s.prevScore = st.Score()
 	}

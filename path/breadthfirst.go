@@ -1,6 +1,7 @@
 package path
 
 import (
+	"go-snake-ai/direction"
 	"go-snake-ai/queue"
 	"go-snake-ai/state"
 	"go-snake-ai/tile"
@@ -53,38 +54,41 @@ func (g *BreadthFirstSearch) Generate(state *state.State, from *tile.Vector, to 
 			return g.backtrace(v, vectorOwners), true
 		}
 
-		adjVectors := []*tile.Vector{
-			// Up
-			{
+		adjVectors := map[direction.Direction]*tile.Vector{
+			direction.Up: {
 				X: v.X,
 				Y: v.Y - 1,
 			},
-			// Right
-			{
+			direction.Right: {
 				X: v.X + 1,
 				Y: v.Y,
 			},
-			// Down
-			{
+			direction.Down: {
 				X: v.X,
 				Y: v.Y + 1,
 			},
-			// Left
-			{
+			direction.Left: {
 				X: v.X - 1,
 				Y: v.Y,
 			},
 		}
 
-		for _, adj := range adjVectors {
+		for dir, adj := range adjVectors {
+			if _, ok := seenVectors[*adj]; ok {
+				continue
+			}
 			if state.ValidPosition(adj.X, adj.Y) {
+				if *v == *from {
+					// If we're on the first vector, we need to make sure we don't try to move backwards!
+					if direction.IsOpposite(state.SnakeDir(), dir) {
+						continue
+					}
+				}
 				t := state.Tile(adj.X, adj.Y)
 				if t == tile.TypeNone || t == tile.TypeFruit {
-					if _, ok := seenVectors[*adj]; !ok {
-						seenVectors[*adj] = true
-						vectorOwners[*adj] = v
-						q.Add(adj)
-					}
+					seenVectors[*adj] = true
+					vectorOwners[*adj] = v
+					q.Add(adj)
 				}
 			}
 		}
