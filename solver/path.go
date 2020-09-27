@@ -4,6 +4,8 @@ import (
 	"go-snake-ai/direction"
 	"go-snake-ai/path"
 	"go-snake-ai/state"
+	"go-snake-ai/tile"
+	"math/rand"
 )
 
 type RegenType int
@@ -62,7 +64,7 @@ func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
 	if regenPath {
 		targetPath, foundPath := s.pathGen.Generate(st, st.SnakeHead(), st.Fruit())
 		if !foundPath {
-			return direction.None
+			return s.randomDirection(st)
 		}
 		s.moves = path.PathToMoves(targetPath)
 		s.currentMove = 0
@@ -76,4 +78,28 @@ func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
 		s.currentMove = 0
 	}
 	return nextMove
+}
+
+func (s *PathFollowingSolver) randomDirection(st *state.State) direction.Direction {
+	// If we couldn't find a path, move in a random direction that won't kill the snake
+	adjVectors := tile.AdjacentVectors(st.SnakeHead())
+	freeDirections := make([]direction.Direction, 0)
+	for dir, adjV := range adjVectors {
+		if !st.ValidPosition(adjV.X, adjV.Y) {
+			continue
+		}
+		t := st.Tile(adjV.X, adjV.Y)
+		if t == tile.TypeBody || t == tile.TypeHead {
+			continue
+		}
+		if direction.IsOpposite(dir, st.SnakeDir()) {
+			continue
+		}
+		freeDirections = append(freeDirections, dir)
+	}
+	if len(freeDirections) == 0 {
+		return direction.None
+	}
+	randomI := rand.Intn(len(freeDirections))
+	return freeDirections[randomI]
 }
