@@ -37,6 +37,10 @@ func main() {
 	} else if *slvr == "shortest" {
 		pathGen := path.NewBreadthFirstSearch()
 		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, true)
+	} else if *slvr == "longest" {
+		bfs := path.NewBreadthFirstSearch()
+		pathGen := path.NewBreadthFirstSearchLongest(bfs)
+		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, false)
 	} else {
 		panic("no solver found")
 	}
