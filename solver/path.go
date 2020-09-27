@@ -6,21 +6,29 @@ import (
 	"go-snake-ai/state"
 )
 
-func NewPathFollowingSolver(name string, pathGen path.Generator, genPathEveryTick bool) *PathFollowingSolver {
+type RegenType int
+
+const (
+	RegenEveryTick RegenType = iota
+	RegenEveryFruit
+	RegenNever
+)
+
+func NewPathFollowingSolver(name string, pathGen path.Generator, regenPath RegenType) *PathFollowingSolver {
 	return &PathFollowingSolver{
-		name:             name,
-		pathGen:          pathGen,
-		genPathEveryTick: genPathEveryTick,
+		name:      name,
+		pathGen:   pathGen,
+		regenPath: regenPath,
 	}
 }
 
 type PathFollowingSolver struct {
-	name             string
-	pathGen          path.Generator
-	genPathEveryTick bool
-	moves            path.Moves
-	currentMove      int
-	prevScore        int
+	name        string
+	pathGen     path.Generator
+	regenPath   RegenType
+	moves       path.Moves
+	currentMove int
+	prevScore   int
 }
 
 func (s *PathFollowingSolver) Name() string {
@@ -39,8 +47,16 @@ func (s *PathFollowingSolver) Ticks() int {
 
 func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
 	regenPath := false
-	if s.genPathEveryTick || len(s.moves) == 0 || s.prevScore != st.Score() {
+	switch s.regenPath {
+	case RegenEveryTick:
 		regenPath = true
+		break
+	case RegenNever:
+		regenPath = len(s.moves) == 0
+		break
+	case RegenEveryFruit:
+		regenPath = len(s.moves) == 0 || s.prevScore != st.Score()
+		break
 	}
 
 	if regenPath {

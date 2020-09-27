@@ -36,11 +36,11 @@ func main() {
 		gameSolver = solver.NewUserSolver()
 	} else if *slvr == "shortest" {
 		pathGen := path.NewBreadthFirstSearch()
-		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, true)
+		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, solver.RegenEveryTick)
 	} else if *slvr == "longest" {
 		bfs := path.NewBreadthFirstSearch()
 		pathGen := path.NewBreadthFirstSearchLongest(bfs)
-		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, false)
+		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, solver.RegenEveryFruit)
 	} else {
 		panic("no solver found")
 	}
