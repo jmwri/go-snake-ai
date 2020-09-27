@@ -22,6 +22,7 @@ func NewState(tileNumX int, tileNumY int) *State {
 	s := &State{
 		tileNumX:     tileNumX,
 		tileNumY:     tileNumY,
+		totTiles:     tileNumX * tileNumY,
 		tiles:        tiles,
 		changedTiles: changed,
 		score:        0,
@@ -36,6 +37,7 @@ func NewState(tileNumX int, tileNumY int) *State {
 type State struct {
 	tileNumX     int
 	tileNumY     int
+	totTiles     int
 	tiles        [][]tile.Type
 	changedTiles []*tile.Vector
 	snakeDir     direction.Direction
@@ -69,6 +71,10 @@ func (s *State) Tiles() [][]tile.Type {
 
 func (s *State) Score() int {
 	return s.score
+}
+
+func (s *State) TotalTiles() int {
+	return s.totTiles
 }
 
 func (s *State) MaxScore() int {

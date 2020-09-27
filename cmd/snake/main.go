@@ -41,6 +41,11 @@ func main() {
 		bfs := path.NewBreadthFirstSearch()
 		pathGen := path.NewBreadthFirstSearchLongest(bfs)
 		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, solver.RegenEveryFruit)
+	} else if *slvr == "hamiltonian" {
+		bfs := path.NewBreadthFirstSearch()
+		longest := path.NewBreadthFirstSearchLongest(bfs)
+		pathGen := path.NewHamiltonianCycle(longest)
+		gameSolver = solver.NewPathFollowingSolver(*slvr, pathGen, solver.RegenNever)
 	} else {
 		panic("no solver found")
 	}

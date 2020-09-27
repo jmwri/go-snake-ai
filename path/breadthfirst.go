@@ -54,24 +54,7 @@ func (g *BreadthFirstSearch) Generate(state *state.State, from *tile.Vector, to 
 			return g.backtrace(v, vectorOwners), true
 		}
 
-		adjVectors := map[direction.Direction]*tile.Vector{
-			direction.Up: {
-				X: v.X,
-				Y: v.Y - 1,
-			},
-			direction.Right: {
-				X: v.X + 1,
-				Y: v.Y,
-			},
-			direction.Down: {
-				X: v.X,
-				Y: v.Y + 1,
-			},
-			direction.Left: {
-				X: v.X - 1,
-				Y: v.Y,
-			},
-		}
+		adjVectors := tile.AdjacentVectors(v)
 
 		for dir, adj := range adjVectors {
 			if _, ok := seenVectors[*adj]; ok {

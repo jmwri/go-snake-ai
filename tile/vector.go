@@ -29,3 +29,24 @@ func DirToVector(from *Vector, to *Vector) direction.Direction {
 	}
 	return direction.None
 }
+
+func AdjacentVectors(v *Vector) map[direction.Direction]*Vector {
+	return map[direction.Direction]*Vector{
+		direction.Up: {
+			X: v.X,
+			Y: v.Y - 1,
+		},
+		direction.Right: {
+			X: v.X + 1,
+			Y: v.Y,
+		},
+		direction.Down: {
+			X: v.X,
+			Y: v.Y + 1,
+		},
+		direction.Left: {
+			X: v.X - 1,
+			Y: v.Y,
+		},
+	}
+}
