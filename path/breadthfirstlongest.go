@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-snake-ai/state"
 	"go-snake-ai/tile"
+	"math/rand"
 )
 
 func NewBreadthFirstSearchLongest(bfs *BreadthFirstSearch) *BreadthFirstSearchLongest {
@@ -41,10 +42,11 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 
 		parallelVectors, err := g.parallelVectors(a, b)
 		if err != nil {
+			i++
 			continue
 		}
 
-		extendedPath := false
+		freeParallelVectors := make([][2]*tile.Vector, 0)
 		for _, side := range parallelVectors {
 			// a/b parallel
 			ap := side[0]
@@ -56,6 +58,14 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 			if !g.canOccupyVector(bp, state, to, occupiedVectors) {
 				continue
 			}
+			freeParallelVectors = append(freeParallelVectors, side)
+		}
+
+		extendedPath := false
+		if len(freeParallelVectors) > 0 {
+			parallelVector := freeParallelVectors[rand.Intn(len(freeParallelVectors))]
+			ap := parallelVector[0]
+			bp := parallelVector[1]
 
 			// Extend the length by 2
 			longestPath = append(longestPath, longestPath[len(longestPath)-2:]...)
@@ -69,7 +79,6 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 
 			extendedPath = true
 			longestPathLen = len(longestPath) - 1
-			break
 		}
 
 		if extendedPath {
