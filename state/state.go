@@ -162,6 +162,7 @@ func (s *State) Move(dir direction.Direction) (bool, error) {
 
 	targetTile := s.Tile(nextVec.X, nextVec.Y)
 	if targetTile == tile.TypeFruit {
+		// Next tile is fruit - we can eat it and grow!
 		s.extendSnake(nextVec, false)
 		// Increment score
 		s.score++
@@ -172,6 +173,11 @@ func (s *State) Move(dir direction.Direction) (bool, error) {
 
 		return true, nil
 	} else if targetTile == tile.TypeNone {
+		// Next tile is empty, we can move into it
+		s.extendSnake(nextVec, true)
+		return true, nil
+	} else if targetTile == tile.TypeBody && *nextVec == *s.SnakeTail() {
+		// Next tile is the tail of the snake. We can move here as the tail will move when we do
 		s.extendSnake(nextVec, true)
 		return true, nil
 	}
@@ -190,8 +196,12 @@ func (s *State) extendSnake(next *tile.Vector, removeTail bool) {
 	if removeTail {
 		// Remove tail of snake
 		tailVec := s.SnakeTail()
-		// Set tile of tail to None
-		s.SetTile(tailVec.X, tailVec.Y, tile.TypeNone)
+		// Head could have potentially taken the place of the tail.
+		// Don't hide the head in this case.
+		if *tailVec != *s.SnakeHead() {
+			// Set tile of tail to None
+			s.SetTile(tailVec.X, tailVec.Y, tile.TypeNone)
+		}
 		// Remove last vector from snake slice
 		s.snake = s.snake[:len(s.snake)-1]
 	}
