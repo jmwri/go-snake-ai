@@ -43,10 +43,6 @@ func (s *PathFollowingSolver) Init() {
 	s.prevScore = 0
 }
 
-func (s *PathFollowingSolver) Ticks() int {
-	return 0
-}
-
 func (s *PathFollowingSolver) NextMove(st *state.State) direction.Direction {
 	regenPath := false
 	switch s.regenPath {

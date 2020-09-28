@@ -8,6 +8,5 @@ import (
 type Solver interface {
 	Name() string
 	NextMove(s *state.State) direction.Direction
-	Ticks() int
 	Init()
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-snake-ai/game"
 	"go-snake-ai/path"
+	"go-snake-ai/runner"
 	"go-snake-ai/scene"
 	"go-snake-ai/score"
 	"go-snake-ai/solver"
@@ -53,8 +54,10 @@ func main() {
 
 	writer := score.NewCSV("scores")
 
+	gameRunner := runner.NewGameRunner(*gameSize, *gameSize, gameSolver, writer)
+
 	titleScene := scene.NewTitleScene()
-	gameScene := scene.NewGameScene(*gameSize, *gameSize, gameSolver, writer)
+	gameScene := scene.NewGameScene(gameRunner, 20)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
 	opts := game.Options{
 		NumTilesX: *gameSize,
