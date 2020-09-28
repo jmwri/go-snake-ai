@@ -59,12 +59,7 @@ func main() {
 	titleScene := scene.NewTitleScene()
 	gameScene := scene.NewGameScene(gameRunner, 20)
 	manager := scene.NewManager(500, 500, titleScene, gameScene)
-	opts := game.Options{
-		NumTilesX: *gameSize,
-		NumTilesY: *gameSize,
-		Manager:   manager,
-	}
-	g := game.NewGame(opts)
+	g := game.NewGame(manager)
 
 	ebiten.SetWindowSize(manager.ScreenWidth(), manager.ScreenHeight())
 	windowTitle := fmt.Sprintf("Snake AI - %s", gameSolver.Name())

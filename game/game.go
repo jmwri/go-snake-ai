@@ -5,20 +5,16 @@ import (
 	"go-snake-ai/scene"
 )
 
-func NewGame(opts Options) *Game {
+func NewGame(manager *scene.Manager) *Game {
 	g := &Game{
-		numTilesX: opts.NumTilesX,
-		numTilesY: opts.NumTilesY,
-		manager:   opts.Manager,
+		manager: manager,
 	}
 	g.manager.GoToTitle()
 	return g
 }
 
 type Game struct {
-	numTilesX int
-	numTilesY int
-	manager   *scene.Manager
+	manager *scene.Manager
 }
 
 // Layout accepts a native outside size in device-independent pixels and returns the game's logical
