@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"fmt"
 	"go-snake-ai/score"
 	"go-snake-ai/solver"
 	"go-snake-ai/state"
@@ -18,15 +19,14 @@ func NewGameRunner(tileNumX int, tileNumY int, slvr solver.Solver, writer score.
 }
 
 type GameRunner struct {
-	s            *state.State
-	ended        bool
-	tileNumX     int
-	tileNumY     int
-	tileWidth    float64
-	tileHeight   float64
-	slvr         solver.Solver
-	writer       score.Writer
-	writtenScore bool
+	s          *state.State
+	ended      bool
+	tileNumX   int
+	tileNumY   int
+	tileWidth  float64
+	tileHeight float64
+	slvr       solver.Solver
+	writer     score.Writer
 }
 
 func (r *GameRunner) Init() {
@@ -34,7 +34,6 @@ func (r *GameRunner) Init() {
 	r.s = state.NewState(r.tileNumX, r.tileNumY)
 	r.slvr.Init()
 	r.ended = false
-	r.writtenScore = false
 }
 
 func (r *GameRunner) TileNumX() int {
@@ -55,12 +54,7 @@ func (r *GameRunner) State() *state.State {
 
 func (r *GameRunner) Update() error {
 	if r.ended {
-		if !r.writtenScore {
-			r.writtenScore = true
-			r.writer.Write(r.s.Score(), r.s.MaxScore(), r.slvr)
-		}
-
-		return nil
+		return fmt.Errorf("cant update ended game")
 	}
 
 	nextDirection := r.slvr.NextMove(r.s)
@@ -70,6 +64,7 @@ func (r *GameRunner) Update() error {
 	}
 	if !alive {
 		r.ended = true
+		r.writer.Write(r.s.Score(), r.s.MaxScore(), r.slvr)
 	}
 
 	return nil
