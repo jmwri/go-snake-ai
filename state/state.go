@@ -156,7 +156,7 @@ func (s *State) Move(dir direction.Direction) (bool, error) {
 		return false, fmt.Errorf("unable to move")
 	}
 
-	if nextVec.X < 0 || nextVec.X >= s.tileNumX || nextVec.Y < 0 || nextVec.Y >= s.tileNumY {
+	if !s.ValidPosition(nextVec.X, nextVec.Y) {
 		return false, nil
 	}
 
