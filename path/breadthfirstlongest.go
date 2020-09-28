@@ -13,8 +13,21 @@ func NewBreadthFirstSearchLongest(bfs *BreadthFirstSearch) *BreadthFirstSearchLo
 	}
 }
 
+type PrefParallelDirection int
+
+const (
+	PrefRandom PrefParallelDirection = iota
+	PrefNegative
+	PrefPositive
+)
+
 type BreadthFirstSearchLongest struct {
-	bfs *BreadthFirstSearch
+	bfs          *BreadthFirstSearch
+	prefParallel PrefParallelDirection
+}
+
+func (g *BreadthFirstSearchLongest) SetPrefParallel(pp PrefParallelDirection) {
+	g.prefParallel = pp
 }
 
 func (g *BreadthFirstSearchLongest) Generate(state *state.State, from *tile.Vector, to *tile.Vector) (Path, bool) {
@@ -22,8 +35,7 @@ func (g *BreadthFirstSearchLongest) Generate(state *state.State, from *tile.Vect
 	if !found {
 		return path, found
 	}
-	longestPath := g.expandPath(state, path, to)
-	return longestPath, true
+	return g.expandPath(state, path, to), true
 }
 
 func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *tile.Vector) Path {
@@ -34,15 +46,14 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 		longestPath = append(longestPath, v)
 	}
 
-	i := 0
-	longestPathLen := len(longestPath) - 1
-	for i < longestPathLen {
+	i := len(longestPath) - 1
+	for i >= 1 {
 		a := longestPath[i]
-		b := longestPath[i+1]
+		b := longestPath[i-1]
 
 		parallelVectors, err := g.parallelVectors(a, b)
 		if err != nil {
-			i++
+			i--
 			continue
 		}
 
@@ -63,7 +74,21 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 
 		extendedPath := false
 		if len(freeParallelVectors) > 0 {
-			parallelVector := freeParallelVectors[rand.Intn(len(freeParallelVectors))]
+			var parallelVector [2]*tile.Vector
+			if len(freeParallelVectors) > 1 {
+				// If we have a choice of parallel vectors, then check if we prefer one expansion direction over another
+				if g.prefParallel == PrefNegative {
+					// Negative favours moving left or up
+					parallelVector = freeParallelVectors[0]
+				} else if g.prefParallel == PrefPositive {
+					// Positive favours moving right or down
+					parallelVector = freeParallelVectors[1]
+				} else if g.prefParallel == PrefRandom {
+					parallelVector = freeParallelVectors[rand.Intn(len(freeParallelVectors))]
+				}
+			} else {
+				parallelVector = freeParallelVectors[0]
+			}
 			ap := parallelVector[0]
 			bp := parallelVector[1]
 
@@ -73,18 +98,17 @@ func (g *BreadthFirstSearchLongest) expandPath(state *state.State, p Path, to *t
 			copy(longestPath[i+2:], longestPath[i:len(longestPath)-2])
 			// Add in the 2 expanded vectors
 			longestPath[i+1] = ap
-			longestPath[i+2] = bp
+			longestPath[i] = bp
 			occupiedVectors[*ap] = true
 			occupiedVectors[*bp] = true
 
 			extendedPath = true
-			longestPathLen = len(longestPath) - 1
 		}
 
 		if extendedPath {
-			i = 0
+			i += 2
 		} else {
-			i++
+			i--
 		}
 	}
 	return longestPath

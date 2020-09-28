@@ -23,6 +23,26 @@ func (g *HamiltonianCycle) Generate(state *state.State, from *tile.Vector, to *t
 		return Path{}, false
 	}
 
+	// We will attempt multiple expansion directions within the longest algo
+	prefs := []PrefParallelDirection{
+		PrefPositive,
+		PrefNegative,
+		PrefRandom,
+	}
+
+	for _, pref := range prefs {
+		g.longest.SetPrefParallel(pref)
+		cycle, found := g.findCycleToAnyEnd(state, from, potentialEndVectors)
+		if found {
+			return cycle, found
+		}
+	}
+
+	return Path{}, false
+}
+
+func (g *HamiltonianCycle) findCycleToAnyEnd(state *state.State, from *tile.Vector, potentialEndVectors []*tile.Vector) (Path, bool) {
+	// We will attempt to find a hamiltonian path to any vector that will allow us to move back to `from`.
 	for _, endV := range potentialEndVectors {
 		path, found := g.longest.Generate(state, from, endV)
 		if !found {
@@ -36,7 +56,6 @@ func (g *HamiltonianCycle) Generate(state *state.State, from *tile.Vector, to *t
 		path = append(path, path[0])
 		return path, true
 	}
-
 	return Path{}, false
 }
 
