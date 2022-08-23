@@ -54,6 +54,10 @@ func (s *State) ValidPosition(x int, y int) bool {
 	return true
 }
 
+func (s *State) Dimensions() (int, int) {
+	return s.tileNumX, s.tileNumY
+}
+
 // SetTile sets the tile at the given coordinates
 func (s *State) SetTile(x int, y int, tileType tile.Type) {
 	s.tiles[y][x] = tileType
